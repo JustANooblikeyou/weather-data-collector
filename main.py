@@ -26,9 +26,10 @@ def create_database():
 
 # Call this function when the script starts to ensure the schema is updated
 create_database()
-
+current_time = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
 
 def fetch_and_store(city, data_type):
+    
     params = {
         "q": city,
         "appid": API_KEY,
@@ -42,10 +43,10 @@ def fetch_and_store(city, data_type):
             "temperature": data["main"]["temp"],
             "humidity": data["main"]["humidity"],
             "description": data["weather"][0]["description"],
-            "datetime": data["dt"]
+            "datetime": current_time
         }
         # Convert timestamp to human-readable time
-        readable_time = datetime.fromtimestamp(weather_data["datetime"], tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+        # readable_time = datetime.fromtimestamp(weather_data["datetime"], tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
 
 
         # Save to database
@@ -59,9 +60,8 @@ def fetch_and_store(city, data_type):
         conn.commit()
         conn.close()
 
-        # Confirmation
-        readable_time = datetime.utcfromtimestamp(weather_data["datetime"]).strftime('%Y-%m-%d %H:%M:%S')
-        print(f"Weather data saved: {weather_data['city']} at {readable_time} as {data_type}")
+        # Confirmation with real-time timestamp
+        print(f"Weather data saved: {weather_data['city']} at {weather_data['datetime']} as {data_type}")
     else:
         print(f"Error: {response.json().get('message', 'Unable to fetch data')}")
 
@@ -106,9 +106,9 @@ def view_data():
     print("\nNew Queries:")
     for entry in all_entries:
         if entry[6] == "new_query":  # Check data_type
-            readable_time = datetime.utcfromtimestamp(entry[5]).strftime('%Y-%m-%d %H:%M:%S')
+            # readable_time = datetime.utcfromtimestamp(entry[5]).strftime('%Y-%m-%d %H:%M:%S')
             print(f"ID: {entry[0]}, City: {entry[1]}, Temp: {entry[2]}°C, Humidity: {entry[3]}%, "
-                  f"Description: {entry[4]}, Time: {readable_time}")
+                  f"Description: {entry[4]}, Time: {current_time}")
 
 
 if __name__ == "__main__":
